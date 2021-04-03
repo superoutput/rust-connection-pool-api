@@ -1,0 +1,2 @@
+# rust-connection-pool-api
+Rust project for database connection pool maintaining a number of open connections to a database and providing in a Functions as a Service (FaaS) model to build applications deployed as “serverless” chunks of code that run completely on the cloud provider’s platform computing infrastructure. With a FaaS platform, you don’t have to manage any server infrastructure and only pay for the computing cycles required to execute the function.
