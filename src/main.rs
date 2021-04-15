@@ -1,7 +1,7 @@
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, App, Error, HttpResponse, HttpServer, Responder};
-use futures::stream::once;
-use futures::future::ok;
+// use futures::stream::once;
+// use futures::future::ok;
 use futures::StreamExt;
 use serde::{Serialize, Deserialize};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -72,29 +72,21 @@ async fn upload(mut payload: Multipart) -> Result<HttpResponse, Error> {
     }))
 }
 
-// async fn test(field: Field) {
-//     let mut filename = "".to_string();
-//     println!("{:?}", field);
-//     let content_type = field.content_disposition().unwrap();
-//     filename = format!("{} - {}", SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_micros(), content_type.get_filename().unwrap, );
-//     let filepath = format!("{}/{}", UPLOAD_PATH, sanitize_filename::sanitize(&filename));
-//     let mut f = web::block(|| std::fs::File::create(filepath))
-//         .await
-//         .unwrap();
-//     while let Some(chunk) = field.next().await {
-//         let data = chunk.unwrap();
-//         f = web::block(move || f.write_all(&data).map(|_| f)).await;
-//     }
-// }
-
 #[get("/files/{name}/")]
 async fn download(info: web::Path<Download>) -> HttpResponse {
-    let name = String::from(info.name.as_str());
-    let body = once(ok::<_, Error>(web::Bytes::from(name)));
+    let path = format!("{}/{}", UPLOAD_PATH, info.name.to_string());
+    if !std::path::Path::new(path.as_str()).exists() {
+        return HttpResponse::NotFound().json(&File {
+            name: info.name.to_string(),
+            time: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            err: "file does not exists".to_string()
+        });
+    }
 
+    let data = std::fs::read(path).unwrap();
     HttpResponse::Ok()
-        .content_type("application/json")
-        .streaming(body)
+        .header("Content-Disposition", format!("form-data; filename={}", info.name.to_string()))
+        .body(data)
 }
 
 #[actix_web::main]
