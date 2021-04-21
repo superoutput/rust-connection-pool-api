@@ -1,7 +1,11 @@
+mod middlewares;
+mod structs;
 mod health;
 mod file;
 
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::dev::Service;
+use futures::future::FutureExt;
 
 
 #[get("/")]
@@ -14,6 +18,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(web::scope("/api")
+                .wrap_fn(|req, srv| {
+                    println!("Hi from start. You requested: {}", req.path());
+                    srv.call(req).map(|res| {
+                        println!("Hi from response");
+                        res
+                    })
+                })
                 .service(index)
                 .service(health::health)
                 .service(file::upload)
