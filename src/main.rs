@@ -1,7 +1,9 @@
 mod middlewares;
+mod services;
 mod structs;
 mod health;
 mod file;
+mod config;
 
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use actix_web::dev::Service;
@@ -26,12 +28,15 @@ async fn main() -> std::io::Result<()> {
                     })
                 })
                 .service(index)
+                .service(services::auth::token)
+                .service(services::auth::validate_token)
+                .service(services::auth::hash)
                 .service(health::health)
                 .service(file::upload)
                 .service(file::download)
             )
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
 }

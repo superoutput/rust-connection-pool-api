@@ -1,0 +1,8 @@
+{
+    "jdbcUrl": "",
+    "username": "superoutput@gmail.com",
+    "password": "fd74bdd901857b89f5737e5352a2a8a2d1f000aa4bed4aee47c95afaa37d0f99",
+    "secretKey": "1qazxsw2",
+    "maximumPoolSize": 10,
+    "codes": [ 1, 2, 3, 4, 5 ]
+}
