@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use chrono::{DateTime, Duration, Utc};
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
@@ -64,7 +64,9 @@ async fn hash(text: web::Path<String>) -> HttpResponse {
 }
 
 #[get("/auth/validate/")]
-async fn validate_token(_: AuthorizationService) -> HttpResponse {
+async fn validate_token(_: AuthorizationService, _req: HttpRequest) -> HttpResponse {
+    let _auth = _req.headers().get("Authorization");
+    println!("Authorization = {:?}", _auth);
     HttpResponse::Ok().body("Congratulation! You are Authorized.")
 }
 
@@ -72,4 +74,10 @@ fn to_sha256(text: &str) -> String {
     let mut sha = Sha256::new();
     sha.input_str(text);
     sha.result_str()
+}
+
+pub fn route(cfg: &mut web::ServiceConfig) {
+    cfg.service(token);
+    cfg.service(hash);
+    cfg.service(validate_token);
 }
