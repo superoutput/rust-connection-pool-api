@@ -27,10 +27,9 @@ async fn main() -> std::io::Result<()> {
                         res
                     })
                 })
+                .configure(services::auth::route)
+                .configure(services::http::route)
                 .service(index)
-                .service(services::auth::token)
-                .service(services::auth::validate_token)
-                .service(services::auth::hash)
                 .service(health::health)
                 .service(file::upload)
                 .service(file::download)
